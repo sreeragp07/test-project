@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1011534712831",
+    "project_id": "currency-converter-aecd0",
+    "storage_bucket": "currency-converter-aecd0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011534712831:android:30a9114c3ad370c37aa1ca",
+        "android_client_info": {
+          "package_name": "com.example.testproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBBJJcR15WOyH87qMNPOa5zqM7EPtwcSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
