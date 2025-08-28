@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:testproject/bloc/currency_converter_bloc.dart';
+import 'package:testproject/repository/apiservices.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? toCurrency = "INR";
   double? convertedAmount;
 
-  // Mock rates (base INR for simplicity)
+  // Mock rates
   final Map<String, double> rates = {
     "USD": 83.2, // US Dollar
     "EUR": 90.5, // Euro
@@ -34,21 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
     "THB": 2.3, // Thai Baht
     "INR": 1.0, // Indian Rupee (base)
   };
-
-  void convertCurrency() {
-    // remove formatting before parsing
-    String rawText = amountController.text.replaceAll(",", "");
-    double amount = double.tryParse(rawText) ?? 0;
-
-    if (fromCurrency == null || toCurrency == null) return;
-
-    double fromRate = rates[fromCurrency] ?? 1;
-    double toRate = rates[toCurrency] ?? 1;
-
-    setState(() {
-      convertedAmount = (amount * fromRate) / toRate;
-    });
-  }
 
   void swapCurrencies() {
     if (fromCurrency != null && toCurrency != null) {
@@ -79,71 +67,92 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Currency Converter"),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Row with From, Swap, To
-            Row(
-              children: [
-                Expanded(child: _currencyBox("From", fromCurrency, true)),
-                IconButton(
-                  onPressed: swapCurrencies,
-                  icon: const Icon(Icons.swap_horiz, size: 28),
-                  tooltip: "Swap",
-                ),
-                Expanded(child: _currencyBox("To", toCurrency, false)),
-              ],
+    ApiServices apiServices = ApiServices();
+    return BlocProvider(
+      create: (context) => CurrencyConverterBloc(apiServices),
+      child: BlocBuilder<CurrencyConverterBloc, CurrencyConverterState>(
+        builder: (context, state) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("Currency Converter"),
+              centerTitle: true,
             ),
-            const SizedBox(height: 16),
-
-            // Amount field with live formatting
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              onChanged: _onAmountChanged,
-              decoration: const InputDecoration(
-                labelText: "Amount",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Convert Button
-            Center(
-              child: ElevatedButton(
-                onPressed:
-                    (fromCurrency == null || toCurrency == null)
-                        ? null
-                        : convertCurrency,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[300],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Row with From, Swap, To
+                  Row(
+                    children: [
+                      Expanded(child: _currencyBox("From", fromCurrency, true)),
+                      IconButton(
+                        onPressed: swapCurrencies,
+                        icon: const Icon(Icons.swap_horiz, size: 28),
+                        tooltip: "Swap",
+                      ),
+                      Expanded(child: _currencyBox("To", toCurrency, false)),
+                    ],
                   ),
-                ),
-                child: const Text("Convert"),
+                  const SizedBox(height: 16),
+
+                  // Amount field with live formatting
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    onChanged: _onAmountChanged,
+                    decoration: const InputDecoration(
+                      labelText: "Amount",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Convert Button
+                  Center(
+                    child: ElevatedButton(
+                      onPressed:
+                          (fromCurrency == null || toCurrency == null)
+                              ? null
+                              : () {
+                                context.read<CurrencyConverterBloc>().add(
+                                  CurrencyConverterEvent(
+                                    fromCurrency: fromCurrency ?? '',
+                                    toCurrency: toCurrency ?? '',
+                                    amount: double.parse(
+                                      amountController.text.replaceAll(",", ""),
+                                    ),
+                                  ),
+                                );
+                              },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[300],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Convert"),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  (state is CurrencyConverterSuccess)
+                      ? Card(
+                        margin: EdgeInsets.all(12),
+                        child: Text(
+                          "Converted Amount: ${state.result?.convertedAmount?.toStringAsFixed(2) ?? '0.00'} ${state.result?.targetCurrency ?? ''}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                      : SizedBox.shrink(),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Output
-            if (convertedAmount != null)
-              Text(
-                "Converted Amount: ${convertedAmount!.toStringAsFixed(2)} $toCurrency",
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

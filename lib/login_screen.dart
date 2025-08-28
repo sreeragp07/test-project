@@ -25,7 +25,10 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(content: Center(child: Text('Successful Login'))),
       );
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Center(child: Text("Credential is incorrect!!!"))),
