@@ -18,21 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Mock rates (base INR for simplicity)
   final Map<String, double> rates = {
-    "USD": 83.2,   // US Dollar
-    "EUR": 90.5,   // Euro
-    "GBP": 106.8,  // British Pound
-    "JPY": 0.56,   // Japanese Yen
-    "AUD": 55.1,   // Australian Dollar
-    "CAD": 61.2,   // Canadian Dollar
-    "CHF": 94.3,   // Swiss Franc
-    "CNY": 11.5,   // Chinese Yuan
-    "AED": 22.7,   // UAE Dirham
-    "SAR": 22.2,   // Saudi Riyal
-    "SGD": 61.5,   // Singapore Dollar
-    "NZD": 50.8,   // New Zealand Dollar
-    "ZAR": 4.6,    // South African Rand
-    "THB": 2.3,    // Thai Baht
-    "INR": 1.0,    // Indian Rupee (base)
+    "USD": 83.2, // US Dollar
+    "EUR": 90.5, // Euro
+    "GBP": 106.8, // British Pound
+    "JPY": 0.56, // Japanese Yen
+    "AUD": 55.1, // Australian Dollar
+    "CAD": 61.2, // Canadian Dollar
+    "CHF": 94.3, // Swiss Franc
+    "CNY": 11.5, // Chinese Yuan
+    "AED": 22.7, // UAE Dirham
+    "SAR": 22.2, // Saudi Riyal
+    "SGD": 61.5, // Singapore Dollar
+    "NZD": 50.8, // New Zealand Dollar
+    "ZAR": 4.6, // South African Rand
+    "THB": 2.3, // Thai Baht
+    "INR": 1.0, // Indian Rupee (base)
   };
 
   void convertCurrency() {
@@ -161,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         return ConstrainedBox(
           constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.7, // 👈 Max 70%
-        ),
+            maxHeight: MediaQuery.of(context).size.height * 0.7, // 👈 Max 70%
+          ),
           child: StatefulBuilder(
             builder: (context, setModalState) {
               return Padding(
@@ -170,6 +170,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Container(
+                      width: 40,
+                      height: 5,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     TextField(
                       controller: searchController,
                       decoration: const InputDecoration(
