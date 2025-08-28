@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:testproject/home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Center(child: Text('Successful Login'))),
       );
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Center(child: Text("Credential is incorrect!!!"))),
@@ -41,9 +44,9 @@ class _LoginPageState extends State<LoginPage> {
         context,
       ).showSnackBar(SnackBar(content: Center(child: Text('User created'))));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text('User creation failed'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('User creation failed')));
     }
   }
 
