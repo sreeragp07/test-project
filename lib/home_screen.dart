@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:testproject/bloc/currency_converter_bloc.dart';
+import 'package:testproject/login_screen.dart';
 import 'package:testproject/repository/apiservices.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -75,6 +77,20 @@ class _HomeScreenState extends State<HomeScreen> {
           return Scaffold(
             appBar: AppBar(
               title: const Text("Currency Converter"),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut(); // Sign out user
+
+                    // Navigate back to Login screen
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
+                ),
+              ],
               centerTitle: true,
             ),
             body: Padding(

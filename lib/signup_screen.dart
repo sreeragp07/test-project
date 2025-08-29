@@ -1,39 +1,44 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testproject/home_screen.dart';
-import 'package:testproject/signup_screen.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final auth = FirebaseAuth.instance;
 
-  Future<void> login(BuildContext context) async {
+  Future<void> signup(BuildContext context) async {
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
+      return;
+    }
     try {
-      await auth.signInWithEmailAndPassword(
+      await auth.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text('Successful Login'))),
+        const SnackBar(content: Text("User created successfully!")),
       );
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text("Credential is incorrect!!!"))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("User creation failed!")));
     }
   }
 
@@ -53,31 +58,17 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blueAccent.withOpacity(0.6),
-                      Colors.lightBlue.withOpacity(0.6), 
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.account_circle,
-                  size: 100,
+              const SizedBox(height: 30),
+              Text(
+                "Create User",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: 1.2,
                 ),
               ),
-              SizedBox(height: 30),
-
+              const SizedBox(height: 30),
               Card(
                 margin: EdgeInsets.all(0),
                 shape: RoundedRectangleBorder(
@@ -92,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                       TextField(
                         controller: emailController,
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email),
+                          prefixIcon: const Icon(Icons.email),
                           hintText: "Email",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -102,12 +93,27 @@ class _LoginPageState extends State<LoginPage> {
                           filled: true,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: passwordController,
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.lock),
+                          prefixIcon: const Icon(Icons.lock),
                           hintText: "Password",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: confirmPasswordController,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          hintText: "Confirm Password",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -122,16 +128,16 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    login(context);
+                    signup(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -139,8 +145,8 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                     shadowColor: Colors.black.withOpacity(0.2),
                   ),
-                  child: Text(
-                    "Login",
+                  child: const Text(
+                    "Sign Up",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -149,24 +155,20 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+
+              const SizedBox(height: 10),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Not registered yet? ",
+                    "Already have an account? ",
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignUpPage()),
-                      );
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: const Text(
-                      "Create User",
+                      "Login",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
