@@ -4,8 +4,16 @@ import 'package:testproject/models/currency_conversion_model/currency_conversion
 import 'package:http/http.dart' as http;
 
 class ApiServices {
-  static const String baseUrl = "https://api.exconvert.com";
-  static const String accessKey = "270ca084-96a82de7-ae4aff0f-60b941d9";
+
+  // Read values from --dart-define
+  static const String baseUrl = String.fromEnvironment(
+    "BASE_URL",
+    defaultValue: "",
+  );
+  static const String accessKey = String.fromEnvironment(
+    "ACCESS_KEY",
+    defaultValue: "",
+  );
 
   Future<CurrencyConversionModel> convert(
     String from,
