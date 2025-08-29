@@ -22,16 +22,9 @@ class CurrencyConverterBloc
         event.toCurrency,
         event.amount,
       );
-      if (response != null) {
-        print('----Successs_with_data-----');
-        print('converted amount : ${response.convertedAmount}');
-        emit(CurrencyConverterSuccess(result: response));
-      } else {
-        print('----Failed-----');
-        emit(CurrencyConverterFailure());
-      }
+
+      emit(CurrencyConverterSuccess(result: response));
     } catch (e) {
-      print('*********Failed********');
       emit(CurrencyConverterFailure());
       throw Exception('Error caught : $e');
     }

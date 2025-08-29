@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testproject/home_screen.dart';
-import 'package:testproject/login_screen.dart';
 import 'package:testproject/widgets/custom_snack_bar.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -21,6 +20,9 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isLoading = false;
 
   Future<void> signup(BuildContext context) async {
+
+    final nav = Navigator.of(context);
+
     if (emailController.text.isEmpty) {
       showCustomSnackBar(context, "Please enter the email", false);
       return;
@@ -34,9 +36,6 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
     if (passwordController.text != confirmPasswordController.text) {
-      // ScaffoldMessenger.of(
-      //   context,
-      // ).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
       showCustomSnackBar(context, "Passwords do not match!", false);
       return;
     }
@@ -46,14 +45,13 @@ class _SignUpPageState extends State<SignUpPage> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text("User created successfully!")),
-      // );
+
       showCustomSnackBar(context, "User created successfully!", true);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      
+      if (!mounted) return;
+      nav.pushReplacement(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         showCustomSnackBar(
@@ -73,9 +71,6 @@ class _SignUpPageState extends State<SignUpPage> {
         showCustomSnackBar(context, "Signup failed: ${e.message}", false);
       }
     } catch (e) {
-      // ScaffoldMessenger.of(
-      //   context,
-      // ).showSnackBar(const SnackBar(content: Text("User creation failed!")));
       showCustomSnackBar(context, "User creation failed!", false);
     } finally {
       setState(() => isLoading = false);
@@ -115,7 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 8,
-                color: Colors.white.withOpacity(0.9),
+                color:  Colors.white.withValues(alpha: 0.9),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
@@ -183,7 +178,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     backgroundColor: Colors.blueAccent,
                     elevation: 6,
-                    shadowColor: Colors.black.withOpacity(0.2),
+                    shadowColor:  Colors.black.withValues(alpha: 0.2),
                   ),
                   child:
                       isLoading
@@ -217,11 +212,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    // onTap:
-                    //     () => Navigator.pushReplacement(
-                    //       context,
-                    //       MaterialPageRoute(builder: (context) => LoginPage()),
-                    //     ),
+
                     child: const Text(
                       "Login",
                       style: TextStyle(

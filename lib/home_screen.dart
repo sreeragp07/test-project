@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     ApiServices apiServices = ApiServices();
+    final nav = Navigator.of(context);
     return BlocProvider(
       create: (context) => CurrencyConverterBloc(apiServices),
       child: BlocBuilder<CurrencyConverterBloc, CurrencyConverterState>(
@@ -104,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Row with From, Swap, To
                     Card(
                       margin: EdgeInsets.all(0),
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -159,25 +160,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed:
-                            // (fromCurrency == null || toCurrency == null)
-                            //     ? null
-                            //     : 
-                            () {
-                                  convert(context);
-                                  // context.read<CurrencyConverterBloc>().add(
-                                  //   CurrencyConverterEvent(
-                                  //     fromCurrency: fromCurrency ?? '',
-                                  //     toCurrency: toCurrency ?? '',
-                                  //     amount: double.parse(
-                                  //       amountController.text.replaceAll(
-                                  //         ",",
-                                  //         "",
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // );
-                                },
+                        onPressed: () {
+                          convert(context);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -185,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 6,
-                          shadowColor: Colors.black.withOpacity(0.2),
+                          shadowColor: Colors.black.withValues(alpha: 0.2),
                         ),
                         child:
                             (state is CurrencyConverterLoading)
@@ -227,9 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           await FirebaseAuth.instance
                               .signOut(); // Sign out user
 
+                          if (!mounted) return; // ensures widget is still in tree
                           // Navigate back to Login screen
-                          Navigator.pushReplacement(
-                            context,
+                          
+                          nav.pushReplacement(
                             MaterialPageRoute(
                               builder: (_) => const LoginPage(),
                             ),
@@ -256,15 +242,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void convert(BuildContext context) {
-    if(fromCurrency == null){
+    if (fromCurrency == null) {
       showCustomSnackBar(context, "Please select From currency", false);
       return;
     }
-    if(toCurrency == null){
+    if (toCurrency == null) {
       showCustomSnackBar(context, "Please select To currency", false);
       return;
     }
-    if(amountController.text.trim().isEmpty){
+    if (amountController.text.trim().isEmpty) {
       showCustomSnackBar(context, "Please enter the amount", false);
       return;
     }
@@ -374,7 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(

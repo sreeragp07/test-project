@@ -21,6 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> login(BuildContext context) async {
     setState(() => isLoading = true);
 
+    final nav = Navigator.of(context);
+
     try {
       if (emailController.text.isEmpty) {
         showCustomSnackBar(context, "Please enter the email", false);
@@ -35,11 +37,12 @@ class _LoginPageState extends State<LoginPage> {
         password: passwordController.text.trim(),
       );
 
+      if (!mounted) return; // ensures widget is still in tree
+
       showCustomSnackBar(context, "Successful Login", true);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+      nav.pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
@@ -75,13 +78,13 @@ class _LoginPageState extends State<LoginPage> {
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     colors: [
-                      Colors.blueAccent.withOpacity(0.6),
-                      Colors.lightBlue.withOpacity(0.6),
+                      Colors.blueAccent.withValues(alpha: 0.6),
+                      Colors.lightBlue.withValues(alpha: 0.6),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -101,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 8,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
@@ -154,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     backgroundColor: Colors.blueAccent,
                     elevation: 6,
-                    shadowColor: Colors.black.withOpacity(0.2),
+                    shadowColor: Colors.black.withValues(alpha: 0.2),
                   ),
                   child:
                       isLoading

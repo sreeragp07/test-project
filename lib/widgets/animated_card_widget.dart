@@ -14,7 +14,7 @@ class AnimatedResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 12),
-      color: Colors.white.withOpacity(0.9),
+      color:  Colors.white.withValues(alpha: 0.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 6,
       child: Padding(

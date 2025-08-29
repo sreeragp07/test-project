@@ -18,7 +18,6 @@ class ApiServices {
       );
 
       final response = await http.get(uri);
-      print('>>> ${response.body}');
       if (response.statusCode == 200) {
         return CurrencyConversionModel.fromJson(jsonDecode(response.body));
       } else {
