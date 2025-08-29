@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:testproject/bloc/currency_converter_bloc.dart';
 import 'package:testproject/login_screen.dart';
 import 'package:testproject/repository/apiservices.dart';
+import 'package:testproject/widgets/animated_card_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,97 +75,174 @@ class _HomeScreenState extends State<HomeScreen> {
       create: (context) => CurrencyConverterBloc(apiServices),
       child: BlocBuilder<CurrencyConverterBloc, CurrencyConverterState>(
         builder: (context, state) {
+          double topPadding = MediaQuery.of(context).padding.top;
           return Scaffold(
-            appBar: AppBar(
-              title: const Text("Currency Converter"),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signOut(); // Sign out user
-
-                    // Navigate back to Login screen
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-              centerTitle: true,
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Row with From, Swap, To
-                  Row(
-                    children: [
-                      Expanded(child: _currencyBox("From", fromCurrency, true)),
-                      IconButton(
-                        onPressed: swapCurrencies,
-                        icon: const Icon(Icons.swap_horiz, size: 28),
-                        tooltip: "Swap",
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: topPadding),
+                    const Text(
+                      "Currency Converter",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Expanded(child: _currencyBox("To", toCurrency, false)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Amount field with live formatting
-                  TextField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    onChanged: _onAmountChanged,
-                    decoration: const InputDecoration(
-                      labelText: "Amount",
-                      border: OutlineInputBorder(),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Convert Button
-                  Center(
-                    child: ElevatedButton(
-                      onPressed:
-                          (fromCurrency == null || toCurrency == null)
-                              ? null
-                              : () {
-                                context.read<CurrencyConverterBloc>().add(
-                                  CurrencyConverterEvent(
-                                    fromCurrency: fromCurrency ?? '',
-                                    toCurrency: toCurrency ?? '',
-                                    amount: double.parse(
-                                      amountController.text.replaceAll(",", ""),
-                                    ),
+                    const SizedBox(height: 20),
+                    // Row with From, Swap, To
+                    Card(
+                      margin: EdgeInsets.all(0),
+                      color: Colors.white.withOpacity(0.9),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _currencyBox(
+                                    "From",
+                                    fromCurrency,
+                                    true,
                                   ),
-                                );
-                              },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                                ),
+                                IconButton(
+                                  onPressed: swapCurrencies,
+                                  icon: const Icon(Icons.swap_horiz, size: 28),
+                                  tooltip: "Swap",
+                                ),
+                                Expanded(
+                                  child: _currencyBox("To", toCurrency, false),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Amount field with live formatting
+                            TextField(
+                              controller: amountController,
+                              keyboardType: TextInputType.number,
+                              onChanged: _onAmountChanged,
+                              decoration: InputDecoration(
+                                labelText: "Amount",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                                fillColor: Colors.white,
+                                filled: true,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: const Text("Convert"),
                     ),
-                  ),
-                  const SizedBox(height: 20),
 
-                  (state is CurrencyConverterSuccess)
-                      ? Card(
-                        margin: EdgeInsets.all(12),
-                        child: Text(
-                          "Converted Amount: ${state.result?.convertedAmount?.toStringAsFixed(2) ?? '0.00'} ${state.result?.targetCurrency ?? ''}",
-                          style: const TextStyle(
-                            fontSize: 18,
+                    // Convert Button
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed:
+                            (fromCurrency == null || toCurrency == null)
+                                ? null
+                                : () {
+                                  context.read<CurrencyConverterBloc>().add(
+                                    CurrencyConverterEvent(
+                                      fromCurrency: fromCurrency ?? '',
+                                      toCurrency: toCurrency ?? '',
+                                      amount: double.parse(
+                                        amountController.text.replaceAll(
+                                          ",",
+                                          "",
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 6,
+                          shadowColor: Colors.black.withOpacity(0.2),
+                        ),
+                        child:
+                            (state is CurrencyConverterLoading)
+                                ? const SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : const Text(
+                                  "Convert",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    (state is CurrencyConverterSuccess)
+                        ? Center(
+                          child: AnimatedSwitcher(
+                            duration: Duration(microseconds: 500),
+                            child: AnimatedResultCard(
+                              amount: state.result?.convertedAmount ?? 0.0,
+                              currency: state.result?.targetCurrency ?? '',
+                            ),
+                          ),
+                        )
+                        : SizedBox.shrink(),
+                    const Spacer(),
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          await FirebaseAuth.instance
+                              .signOut(); // Sign out user
+
+                          // Navigate back to Login screen
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                      )
-                      : SizedBox.shrink(),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -186,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         return ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7, // 👈 Max 70%
+            maxHeight: MediaQuery.of(context).size.height * 0.7, // Max 70%
           ),
           child: StatefulBuilder(
             builder: (context, setModalState) {
@@ -196,20 +274,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 40,
+                      width: 50,
                       height: 5,
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.grey[400],
+                        color: Colors.grey[350],
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     TextField(
                       controller: searchController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "Search currency...",
                         prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        fillColor: Colors.white,
+                        filled: true,
                       ),
                       onChanged: (value) {
                         setModalState(() {
@@ -265,8 +348,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Text(value ?? "$label Currency"),
       ),
