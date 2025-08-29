@@ -42,7 +42,26 @@ class _LoginPageState extends State<LoginPage> {
       showCustomSnackBar(context, "Successful Login", true);
 
       nav.pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        PageRouteBuilder(
+          pageBuilder:
+              (context, animation, secondaryAnimation) => const HomeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Fade + Slide from right
+            final fadeAnim = Tween<double>(begin: 0, end: 1).animate(animation);
+            final slideAnim = Tween<Offset>(
+              begin: const Offset(1, 0), // from right
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            );
+
+            return FadeTransition(
+              opacity: fadeAnim,
+              child: SlideTransition(position: slideAnim, child: child),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
@@ -192,7 +211,40 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  SignUpPage(),
+                          transitionsBuilder: (
+                            context,
+                            animation,
+                            secondaryAnimation,
+                            child,
+                          ) {
+                            final fadeAnim = Tween<double>(
+                              begin: 0,
+                              end: 1,
+                            ).animate(animation);
+                            final slideAnim = Tween<Offset>(
+                              begin: const Offset(1, 0), // from right
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeInOut,
+                              ),
+                            );
+
+                            return FadeTransition(
+                              opacity: fadeAnim,
+                              child: SlideTransition(
+                                position: slideAnim,
+                                child: child,
+                              ),
+                            );
+                          },
+                          transitionDuration: const Duration(milliseconds: 500),
+                        ),
                       );
                     },
                     child: const Text(

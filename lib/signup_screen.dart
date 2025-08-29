@@ -20,7 +20,6 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isLoading = false;
 
   Future<void> signup(BuildContext context) async {
-
     final nav = Navigator.of(context);
 
     if (emailController.text.isEmpty) {
@@ -47,11 +46,33 @@ class _SignUpPageState extends State<SignUpPage> {
       );
 
       showCustomSnackBar(context, "User created successfully!", true);
-      
+
       if (!mounted) return;
+      //   nav.pushReplacement(
+      //   MaterialPageRoute(builder: (_) => const HomeScreen()),
+      // );
       nav.pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
+        PageRouteBuilder(
+          pageBuilder:
+              (context, animation, secondaryAnimation) => const HomeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Fade + Slide from right
+            final fadeAnim = Tween<double>(begin: 0, end: 1).animate(animation);
+            final slideAnim = Tween<Offset>(
+              begin: const Offset(1, 0), // from right
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            );
+
+            return FadeTransition(
+              opacity: fadeAnim,
+              child: SlideTransition(position: slideAnim, child: child),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         showCustomSnackBar(
@@ -110,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 8,
-                color:  Colors.white.withValues(alpha: 0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
@@ -178,7 +199,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     backgroundColor: Colors.blueAccent,
                     elevation: 6,
-                    shadowColor:  Colors.black.withValues(alpha: 0.2),
+                    shadowColor: Colors.black.withValues(alpha: 0.2),
                   ),
                   child:
                       isLoading

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -214,10 +216,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           if (!mounted) return; // ensures widget is still in tree
                           // Navigate back to Login screen
-                          
+
                           nav.pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const LoginPage(),
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const LoginPage(),
+                              transitionsBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                                child,
+                              ) {
+                                // Fade + Slide from right
+                                final fadeAnim = Tween<double>(
+                                  begin: 0,
+                                  end: 1,
+                                ).animate(animation);
+                                final slideAnim = Tween<Offset>(
+                                  begin: const Offset(1, 0), // from right
+                                  end: Offset.zero,
+                                ).animate(
+                                  CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeInOut,
+                                  ),
+                                );
+
+                                return FadeTransition(
+                                  opacity: fadeAnim,
+                                  child: SlideTransition(
+                                    position: slideAnim,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              transitionDuration: const Duration(
+                                milliseconds: 500,
+                              ),
                             ),
                           );
                         },
