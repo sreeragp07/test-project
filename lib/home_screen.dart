@@ -6,6 +6,7 @@ import 'package:testproject/bloc/currency_converter_bloc.dart';
 import 'package:testproject/login_screen.dart';
 import 'package:testproject/repository/apiservices.dart';
 import 'package:testproject/widgets/animated_card_widget.dart';
+import 'package:testproject/widgets/custom_snack_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,8 +19,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController amountController = TextEditingController();
   final NumberFormat formatter = NumberFormat.decimalPattern(); // adds commas
 
-  String? fromCurrency = "USD";
-  String? toCurrency = "INR";
+  String? fromCurrency;
+  String? toCurrency;
   double? convertedAmount;
 
   // Mock rates
@@ -138,7 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               keyboardType: TextInputType.number,
                               onChanged: _onAmountChanged,
                               decoration: InputDecoration(
-                                labelText: "Amount",
+                                hintText: "Amount",
+                                hintStyle: TextStyle(color: Colors.grey),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide.none,
@@ -158,21 +160,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed:
-                            (fromCurrency == null || toCurrency == null)
-                                ? null
-                                : () {
-                                  context.read<CurrencyConverterBloc>().add(
-                                    CurrencyConverterEvent(
-                                      fromCurrency: fromCurrency ?? '',
-                                      toCurrency: toCurrency ?? '',
-                                      amount: double.parse(
-                                        amountController.text.replaceAll(
-                                          ",",
-                                          "",
-                                        ),
-                                      ),
-                                    ),
-                                  );
+                            // (fromCurrency == null || toCurrency == null)
+                            //     ? null
+                            //     : 
+                            () {
+                                  convert(context);
+                                  // context.read<CurrencyConverterBloc>().add(
+                                  //   CurrencyConverterEvent(
+                                  //     fromCurrency: fromCurrency ?? '',
+                                  //     toCurrency: toCurrency ?? '',
+                                  //     amount: double.parse(
+                                  //       amountController.text.replaceAll(
+                                  //         ",",
+                                  //         "",
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // );
                                 },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
@@ -247,6 +251,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void convert(BuildContext context) {
+    if(fromCurrency == null){
+      showCustomSnackBar(context, "Please select From currency", false);
+      return;
+    }
+    if(toCurrency == null){
+      showCustomSnackBar(context, "Please select To currency", false);
+      return;
+    }
+    if(amountController.text.trim().isEmpty){
+      showCustomSnackBar(context, "Please enter the amount", false);
+      return;
+    }
+    context.read<CurrencyConverterBloc>().add(
+      CurrencyConverterEvent(
+        fromCurrency: fromCurrency ?? '',
+        toCurrency: toCurrency ?? '',
+        amount: double.parse(amountController.text.replaceAll(",", "")),
       ),
     );
   }
@@ -351,7 +377,10 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white.withOpacity(0.9),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(value ?? "$label Currency"),
+        child: Text(
+          value ?? label, // If null, show "From" or "To"
+          style: TextStyle(color: value == null ? Colors.grey : Colors.black),
+        ),
       ),
     );
   }

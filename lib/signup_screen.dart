@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testproject/home_screen.dart';
+import 'package:testproject/login_screen.dart';
+import 'package:testproject/widgets/custom_snack_bar.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -16,29 +18,67 @@ class _SignUpPageState extends State<SignUpPage> {
       TextEditingController();
   final auth = FirebaseAuth.instance;
 
+  bool isLoading = false;
+
   Future<void> signup(BuildContext context) async {
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
+    if (emailController.text.isEmpty) {
+      showCustomSnackBar(context, "Please enter the email", false);
       return;
     }
+    if (passwordController.text.isEmpty) {
+      showCustomSnackBar(context, "Please enter the password", false);
+      return;
+    }
+    if (confirmPasswordController.text.isEmpty) {
+      showCustomSnackBar(context, "Please re-enter the password", false);
+      return;
+    }
+    if (passwordController.text != confirmPasswordController.text) {
+      // ScaffoldMessenger.of(
+      //   context,
+      // ).showSnackBar(const SnackBar(content: Text("Passwords do not match!")));
+      showCustomSnackBar(context, "Passwords do not match!", false);
+      return;
+    }
+    setState(() => isLoading = true);
     try {
       await auth.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User created successfully!")),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text("User created successfully!")),
+      // );
+      showCustomSnackBar(context, "User created successfully!", true);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        showCustomSnackBar(
+          context,
+          "Email already exists! Please login instead.",
+          false,
+        );
+      } else if (e.code == 'invalid-email') {
+        showCustomSnackBar(context, "Invalid email format!", false);
+      } else if (e.code == 'weak-password') {
+        showCustomSnackBar(
+          context,
+          "Password should be at least 6 characters!",
+          false,
+        );
+      } else {
+        showCustomSnackBar(context, "Signup failed: ${e.message}", false);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("User creation failed!")));
+      // ScaffoldMessenger.of(
+      //   context,
+      // ).showSnackBar(const SnackBar(content: Text("User creation failed!")));
+      showCustomSnackBar(context, "User creation failed!", false);
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -145,14 +185,24 @@ class _SignUpPageState extends State<SignUpPage> {
                     elevation: 6,
                     shadowColor: Colors.black.withOpacity(0.2),
                   ),
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          : const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                 ),
               ),
 
@@ -167,6 +217,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
+                    // onTap:
+                    //     () => Navigator.pushReplacement(
+                    //       context,
+                    //       MaterialPageRoute(builder: (context) => LoginPage()),
+                    //     ),
                     child: const Text(
                       "Login",
                       style: TextStyle(

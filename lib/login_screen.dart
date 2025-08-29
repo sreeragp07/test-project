@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testproject/home_screen.dart';
 import 'package:testproject/signup_screen.dart';
+import 'package:testproject/widgets/custom_snack_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,25 +16,41 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   final auth = FirebaseAuth.instance;
 
+  bool isLoading = false;
+
   Future<void> login(BuildContext context) async {
+    setState(() => isLoading = true);
+
     try {
+      if (emailController.text.isEmpty) {
+        showCustomSnackBar(context, "Please enter the email", false);
+        return;
+      }
+      if (passwordController.text.isEmpty) {
+        showCustomSnackBar(context, "Please enter the password", false);
+        return;
+      }
       await auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text('Successful Login'))),
-      );
+      showCustomSnackBar(context, "Successful Login", true);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        showCustomSnackBar(context, "Invalid email format!", false);
+      } else {
+        showCustomSnackBar(context, "Credential is incorrect!", false);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Center(child: Text("Credential is incorrect!!!"))),
-      );
+      showCustomSnackBar(context, "Credential is incorrect!", false);
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -59,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                   gradient: LinearGradient(
                     colors: [
                       Colors.blueAccent.withOpacity(0.6),
-                      Colors.lightBlue.withOpacity(0.6), 
+                      Colors.lightBlue.withOpacity(0.6),
                     ],
                   ),
                   boxShadow: [
@@ -139,14 +156,24 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                     shadowColor: Colors.black.withOpacity(0.2),
                   ),
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                          : Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                 ),
               ),
               SizedBox(height: 10),

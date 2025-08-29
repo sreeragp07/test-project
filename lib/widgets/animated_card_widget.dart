@@ -25,10 +25,7 @@ class AnimatedResultCard extends StatelessWidget {
           builder: (context, value, child) {
             return Text(
               "Converted Amount: ${value.toStringAsFixed(2)} $currency",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             );
           },
         ),
